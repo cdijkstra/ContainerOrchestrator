@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContainerOrchestrator.Sched
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContainerOrchestrator.Base", "ContainerOrchestrator.Base\ContainerOrchestrator.Base.csproj", "{D323F7AD-6569-42BD-BF0B-F0460B18A999}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContainerOrchestrator.Scheduler.Test", "ContainerOrchestrator.Scheduler.Test\ContainerOrchestrator.Scheduler.Test.csproj", "{09F69C89-6CF4-4B5E-8179-6C91381EB401}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D323F7AD-6569-42BD-BF0B-F0460B18A999}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D323F7AD-6569-42BD-BF0B-F0460B18A999}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D323F7AD-6569-42BD-BF0B-F0460B18A999}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09F69C89-6CF4-4B5E-8179-6C91381EB401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09F69C89-6CF4-4B5E-8179-6C91381EB401}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09F69C89-6CF4-4B5E-8179-6C91381EB401}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09F69C89-6CF4-4B5E-8179-6C91381EB401}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
