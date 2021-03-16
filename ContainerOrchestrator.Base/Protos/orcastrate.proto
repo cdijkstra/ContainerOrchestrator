@@ -1,0 +1,17 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package orcastrate;
+
+// The greeting service definition.
+service Orcastrater {
+  rpc GetNodeCapacities(google.protobuf.Empty) returns (stream GenericMessage);
+  rpc UpdatePods(GenericMessage) returns (stream GenericMessage);
+  rpc RecievePods(stream GenericMessage) returns (stream GenericMessage);
+}
+message GenericMessage{
+    string content = 1;
+}
+
+

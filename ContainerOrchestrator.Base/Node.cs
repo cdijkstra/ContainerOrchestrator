@@ -14,7 +14,15 @@ namespace ContainerOrchestrator.Base
 
         public int AllCPU { get; set; }
 
+        public int FreeMemory { get; set; }
+
+        public int FreeCPU { get; set; }
+
         public DateTime LastHeartbeat { get; set; }
 
+        public override string ToString()
+        {
+            return $"{Name} ({IpAddress}) - {FreeMemory}/{AllMemory} Memory - {FreeCPU}/{AllCPU} CPU - {LastHeartbeat}";
+        }
     }
 }

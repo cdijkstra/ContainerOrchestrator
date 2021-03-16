@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ContainerOrchestrator.Scheduler.Test\ContainerOrchestrator.Scheduler.Test.csproj" />
+  </ItemGroup>
+
 </Project>
