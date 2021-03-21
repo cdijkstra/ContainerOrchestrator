@@ -11,9 +11,5 @@
   <ItemGroup>
     <ProjectReference Include="..\ContainerOrchestrator.Base\ContainerOrchestrator.Base.csproj" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Protobuf Include="..\ContainerOrchestrator.Base\Protos\*.proto" GrpcServices="Server" />
-    <Content Include="@(Protobuf)" LinkBase="" />
-  </ItemGroup>
+
 </Project>

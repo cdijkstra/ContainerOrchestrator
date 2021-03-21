@@ -2,6 +2,7 @@
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Grpc.Net.Client;
+using Orcastrate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,26 +22,21 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
             this.serverAddress = serverAddress;
         }
 
-        public async Task<List<Node>> GetNodeStatusAsync()
+        public async Task<IList<Node>> GetNodeStatusAsync()
         {
-            var client = ConnectionHandler.GetOrchasterClient(serverAddress);
+            var client = ConnectionHandler.GetClient(serverAddress);
 
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(500));
-            using var reply = client.GetNodeCapacities(new Empty(), cancellationToken: cts.Token);
-            List<Node> nodes = null;
             try
             {
-                await foreach (var nodeStatus in reply.ResponseStream.ReadAllAsync(cancellationToken: cts.Token))
-                {
-                    nodes = JsonSerializer.Deserialize<List<Node>>(nodeStatus.Content);
-                    return nodes;
-                }
+                var reply = await client.GetNodeCapacitiesAsync(new Empty(), cancellationToken: cts.Token);
+                return reply.Nodes;
             }
             catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
             {
                 Console.WriteLine("Stream timed out, stream cancelled.");
             }
-            return nodes;
+            return null;
         }
     }
 }

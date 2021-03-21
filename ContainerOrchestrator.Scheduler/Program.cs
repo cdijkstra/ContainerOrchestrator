@@ -18,20 +18,10 @@ namespace ContainerOrchestrator.Scheduler
 
         static async Task Main(string[] args)
         {
-            //var ns = new NodeServices(SERVER_ADDRESS);
-            //await ns.GetNodeStatusAsync();
-
-            //var ps = new PodServices(SERVER_ADDRESS);
-            //var ll = new List<Pod>() { new Pod() { Name = "p1", Image = "nginx", NodeName = "node1" } };
-            //await ps.UpdatePodsAsync(ll);
-
-            //_ = Task.Run(async () =>
-            //{
             var ps = new PodServices(SERVER_ADDRESS);
-            await ps.RecievePodsFromApi();
-            //});
+            await ps.ReconcileAsync();
 
-            //Console.ReadKey();
+            Console.ReadKey();
         }
     }
 }

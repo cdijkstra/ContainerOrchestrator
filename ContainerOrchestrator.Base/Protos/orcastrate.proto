@@ -1,17 +1,79 @@
 ﻿syntax = "proto3";
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 package orcastrate;
 
 // The greeting service definition.
 service Orcastrater {
-  rpc GetNodeCapacities(google.protobuf.Empty) returns (stream GenericMessage);
-  rpc UpdatePods(GenericMessage) returns (stream GenericMessage);
-  rpc RecievePods(stream GenericMessage) returns (stream GenericMessage);
-}
-message GenericMessage{
-    string content = 1;
+  rpc GetNodeCapacities(google.protobuf.Empty) returns (NodesResponse);
+  rpc SchedulePods(PodsRequest) returns (GenericReply);
+  rpc Reconcile(stream RegisterRequest) returns (stream PodsResponse);
 }
 
+message RegisterRequest{
+    string Id = 1;
+}
+
+message GenericReply{
+    int32 ResponseCode = 1;
+    string ResponseMessage = 2;
+}
+
+message PodsRequest{
+    repeated Pod Pods = 1;
+}
+
+message PodsResponse{
+    repeated Pod Pods = 1;
+}
+
+message NodesResponse{
+    repeated Node Nodes = 1;
+}
+
+message Deployment{
+    string Name = 1;
+    int32 Replicas = 2;
+    string Image = 3;
+    repeated string Commands = 4;
+    Limitation Limit = 5;
+    Limitation Request = 6;
+    google.protobuf.Timestamp LastModified = 7;
+}
+
+message Limitation{
+    int32 CPU = 1;
+    int32 Memory = 2;
+}
+
+message Node{
+    string IpAddress = 1;
+    string Name = 2;
+    int32 AllMemory = 3;
+    int32 AllCPU = 4;
+    int32 FreeMemory = 5;
+    int32 FreeCPU = 6;
+    google.protobuf.Timestamp LastHeartbeat = 7;
+}
+
+message Pod{
+    string Name = 1;
+    string Image = 2;
+    repeated string Commands = 3;
+    Limitation Limit = 4;
+    Limitation Request = 5;
+    string NodeName = 6;
+    PodStatus Status = 7;
+    google.protobuf.Timestamp LastModified = 8;
+}
+
+enum PodStatus {
+    Pending=0;
+    Creating=1;
+    Running=2;
+    Failed=3;
+    Terminating=4;
+  }
 

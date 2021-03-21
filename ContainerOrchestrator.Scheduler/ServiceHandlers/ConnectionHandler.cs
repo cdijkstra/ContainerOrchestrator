@@ -4,13 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using static Orcastrate.Orcastrater;
 
 namespace ContainerOrchestrator.Scheduler.ServiceHandlers
 {
     public static class ConnectionHandler
     {
-        private static Orcastrater.OrcastraterClient orcastrater = null;
+        private static OrcastraterClient orcastrater = null;
         private static GrpcChannel channel = null;
+        
         public static void CreateConnection(string serverAddress)
         {
             if (channel == null)
@@ -22,12 +24,12 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
             await channel.ShutdownAsync();
         }
 
-        public static Orcastrater.OrcastraterClient GetOrchasterClient(string serverAddress)
+        public static OrcastraterClient GetClient(string serverAddress)
         {
             if (channel == null)
                 CreateConnection(serverAddress);
 
-            return orcastrater != null ? orcastrater : new Orcastrater.OrcastraterClient(channel);
+            return orcastrater ?? new OrcastraterClient(channel);
         }
     }
 }

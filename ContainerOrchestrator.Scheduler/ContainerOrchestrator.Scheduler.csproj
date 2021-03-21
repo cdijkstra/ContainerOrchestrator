@@ -15,10 +15,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Protobuf Include="..\ContainerOrchestrator.Base\Protos\*.proto" GrpcServices="Client" />
-    <Content Include="@(Protobuf)" LinkBase="" />
-  </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\ContainerOrchestrator.Base\ContainerOrchestrator.Base.csproj" />

@@ -14,7 +14,7 @@ using Orcastrate;
 
 namespace ContainerOrchestrator.Api
 {
-    public class OrcastrateService : Orcastrate.Orcastrater.OrcastraterBase
+    public class OrcastrateService : Orcastrater.OrcastraterBase
     {
         private readonly ILogger<OrcastrateService> _logger;
         private SubscribeHandler _subscribeHandler;
@@ -25,25 +25,9 @@ namespace ContainerOrchestrator.Api
             _subscribeHandler = new SubscribeHandler();
         }
 
-        public override async Task UpdatePods(GenericMessage request, IServerStreamWriter<Orcastrate.GenericMessage> responseStream, ServerCallContext context)
+        public override Task<NodesResponse> GetNodeCapacities(Empty request, ServerCallContext context)
         {
-            var pods = JsonSerializer.Deserialize<List<Pod>>(request.Content);
-            _logger.LogInformation("Sending GetNodeCapacities response");
-            var response = new Base.GenericResponse() { ErrorMessage = string.Empty, Successful = true };
-            var jsonString = JsonSerializer.Serialize(response);
-            var ret = new Orcastrate.GenericMessage { Content = jsonString };
-
-            await responseStream.WriteAsync(ret);
-            _logger.LogInformation("Send dummy pods again");
-
-            //for testing purpose it sleeps 5s before it sends a new dummy request
-            Thread.Sleep(5000);
-            await SendDummyPods();
-        }
-
-        public override async Task GetNodeCapacities(Empty _, IServerStreamWriter<Orcastrate.GenericMessage> responseStream, ServerCallContext context)
-        {
-            var forecast = new List<Node>(){
+            var dummyNodes = new List<Node>(){
                     new Node{
                         IpAddress= "1.1.1.1",
                         Name="node1",
@@ -60,35 +44,60 @@ namespace ContainerOrchestrator.Api
                         FreeMemory=1111 }
                 };
             _logger.LogInformation("Sending Node Capacities");
-            var jsonString = JsonSerializer.Serialize(forecast);
-            var ret = new Orcastrate.GenericMessage { Content = jsonString };
 
-            await responseStream.WriteAsync(ret);
+            var nodesResponse = new NodesResponse();
+
+#warning find a better way to transfare values
+            foreach (var node in dummyNodes)
+            {
+                nodesResponse.Nodes.Add(node);
+            }
+
+            return Task.FromResult(nodesResponse);
         }
 
-
-        public override async Task RecievePods(IAsyncStreamReader<GenericMessage> requestStream, IServerStreamWriter<Orcastrate.GenericMessage> responseStream, ServerCallContext context)
+        public override async Task Reconcile(IAsyncStreamReader<RegisterRequest> requestStream, IServerStreamWriter<PodsResponse> responseStream, ServerCallContext context)
         {
-            //_subscribeHandler = new SubscribeHandler();
+            _logger.LogInformation("Collecting all the pending nodes and sending it to the Scheduler");
+
             _subscribeHandler.Join(string.Empty, responseStream);
             do
             {
-                await SendDummyPods();
+                await SendDummyPodsAsync();
             } while (await requestStream.MoveNext());
 
             _subscribeHandler.Remove(context.Peer);
+
+            throw new NotImplementedException();
         }
 
-        private async Task SendDummyPods()
+        public override async Task<GenericReply> SchedulePods(PodsRequest request, ServerCallContext context)
         {
-            List<Pod> pods = new List<Pod>();
+            _logger.LogInformation("Getting the scheduled pods and saving them");
+
+            foreach (var pod in request.Pods)
+            {
+                Console.WriteLine(pod.PrettyPrint());
+            }
+
+            _logger.LogInformation("Send dummy pods again");
+
+            //for testing purpose it sleeps 5s before it sends a new dummy request
+            await SendDummyPodsAsync();
+
+            return new GenericReply() { ResponseCode = 200, ResponseMessage="yeeeeah" };
+        }
+
+        private async Task SendDummyPodsAsync()
+        {
+            Thread.Sleep(5000);
+            var pods = new List<Pod>();
             var podDummmyId = new Random().Next(1, 13);
             pods.Add(new Pod() { Name = "p" + podDummmyId + "-a", Image = "nginx" });
             pods.Add(new Pod() { Name = "p" + podDummmyId + "-b", Image = "nginx" });
             pods.Add(new Pod() { Name = "p" + podDummmyId + "-c-pending-forever", Image = "nginx", Request = new Limitation() { CPU = 10000, Memory = 100 } });
-            var content = JsonSerializer.Serialize(pods);
 
-            await _subscribeHandler.BroadcastMessageAsync(new GenericMessage() { Content = content });
+            await _subscribeHandler.BroadcastMessageAsync(pods);
         }
     }
 }

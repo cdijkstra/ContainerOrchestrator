@@ -1,4 +1,4 @@
-﻿using ContainerOrchestrator.Base;
+﻿using static ContainerOrchestrator.Base.ExtensionMethods;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Orcastrate;
@@ -9,6 +9,8 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using static Orcastrate.Orcastrater;
+using ContainerOrchestrator.Base;
+using Google.Protobuf.Collections;
 
 namespace ContainerOrchestrator.Scheduler.ServiceHandlers
 {
@@ -20,24 +22,22 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
         public PodServices(string serverAddress)
         {
             this.serverAddress = serverAddress;
+            client = ConnectionHandler.GetClient(serverAddress);
         }
 
-        public async Task UpdatePodsAsync(List<Pod> pods)
+        private async Task UpdatePodsAsync(IList<Pod> pods)
         {
-            client = ConnectionHandler.GetOrchasterClient(serverAddress);
+            var podsRequest = new PodsRequest();
+#warning find a better way to transfare values
+            foreach (var pod in pods)
+            {
+                podsRequest.Pods.Add(pod);
+            }
 
-            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(500));
-
-            var request = new GenericMessage() { Content = JsonSerializer.Serialize(pods) };
-
-            using var reply = client.UpdatePods(request, cancellationToken: cts.Token);
             try
             {
-                await foreach (var nodeStatus in reply.ResponseStream.ReadAllAsync(cancellationToken: cts.Token))
-                {
-                    var resp = JsonSerializer.Deserialize<Base.GenericResponse>(nodeStatus.Content);
-                    Console.WriteLine(resp.Successful);
-                }
+                var reply = await client.SchedulePodsAsync(podsRequest, cancellationToken: new CancellationTokenSource(TimeSpan.FromSeconds(500)).Token);
+                Console.WriteLine(reply.ResponseCode + " -- " + reply.ResponseMessage);
             }
             catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)
             {
@@ -46,34 +46,37 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
 
         }
 
-        public async Task RecievePodsFromApi()
+        public async Task ReconcileAsync()
         {
-            try {
-                client = ConnectionHandler.GetOrchasterClient(serverAddress);
-
+            try
+            {
                 var cts = new CancellationTokenSource(TimeSpan.FromSeconds(500));
-
-                var response = client.RecievePods(cancellationToken: cts.Token);
+                var response = client.Reconcile(cancellationToken: cts.Token);
 
                 while (await response.ResponseStream.MoveNext(cancellationToken: CancellationToken.None))
                 {
-                    var currentContent = response.ResponseStream.Current;
-
-                    var pendingPods = JsonSerializer.Deserialize<List<Pod>>(currentContent.Content);
+                    var pendingPods = response.ResponseStream.Current.Pods;
 
                     var ns = new NodeServices(serverAddress);
                     var nodes = await ns.GetNodeStatusAsync();
+
                     Console.WriteLine("Nodes in a list:");
-                    nodes.ForEach(x => { Console.WriteLine(x.ToString()); });
-                    List<Pod> scheduledPods = SchedulePods(pendingPods, nodes);
+                    foreach (var node in nodes)
+                    {
+                        Console.WriteLine(node.PrettyPrint());
+                    }
+
+                    var scheduledPods = SchedulingPods(pendingPods, nodes);
 
                     Console.WriteLine("\n Scheduled pods:");
-                    scheduledPods.ForEach(x => { Console.WriteLine(x.ToString()); });
-                    var ps = new PodServices(serverAddress);
-                    await ps.UpdatePodsAsync(scheduledPods);
+                    foreach (var pod in scheduledPods)
+                    {
+                        Console.WriteLine(pod.PrettyPrint());
+                    }
+
+                    await UpdatePodsAsync(scheduledPods);
 
                     Console.Write("Request was processed");
-
                 }
 
             }
@@ -87,10 +90,10 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
             {
                 await ConnectionHandler.CloseChannelAsync();
             }
-           
+
         }
 
-        private List<Pod> SchedulePods(List<Pod> pendingPods, List<Node> nodes)
+        private IList<Pod> SchedulingPods(IList<Pod> pendingPods, IList<Node> nodes)
         {
             foreach (var node in nodes)
             {
@@ -99,7 +102,11 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
                     //Already scheduler to somewhere
                     if (!string.IsNullOrEmpty(pendingPod.NodeName)) { continue; }
 
+                    if (pendingPod.Limit == null) { pendingPod.Limit = new Limitation(); }
+                    if (pendingPod.Request == null) { pendingPod.Request = new Limitation(); }
+
                     pendingPod.Limit = SetLimitation(pendingPod.Limit, pendingPod.Request);
+
                     pendingPod.Request = SetLimitation(pendingPod.Request, pendingPod.Request);
 
                     if (node.FreeCPU > pendingPod.Limit.CPU && node.FreeMemory > pendingPod.Limit.Memory)
@@ -121,7 +128,7 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
             {
                 if (request.CPU == 0)
                 {
-                    ret.CPU = Pod.BasicCPURequest;
+                    ret.CPU = Config.BasicCPURequest;
                 }
                 else
                 {
@@ -137,7 +144,7 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
             {
                 if (request.Memory == 0)
                 {
-                    ret.Memory = Pod.BasicMemoryRequest;
+                    ret.Memory = Config.BasicMemoryRequest;
                 }
                 else
                 {
