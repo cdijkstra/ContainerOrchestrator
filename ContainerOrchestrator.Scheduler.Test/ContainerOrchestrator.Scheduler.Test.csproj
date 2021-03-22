@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ContainerOrchestrator.Api\ContainerOrchestrator.Api.csproj" />
     <ProjectReference Include="..\ContainerOrchestrator.Scheduler\ContainerOrchestrator.Scheduler.csproj" />
   </ItemGroup>
 

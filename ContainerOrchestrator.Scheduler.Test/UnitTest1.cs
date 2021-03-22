@@ -5,10 +5,14 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using ContainerOrchestrator.Api;
 using ContainerOrchestrator.Base;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Grpc.Core.Testing;
+using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 using Orcastrate;
 
@@ -22,34 +26,20 @@ namespace ContainerOrchestrator.Scheduler.Test
         }
 
         [Test]
-        public void ClientBaseServerStreamingCallCanBeMocked()
+        public async Task ClientBaseServerStreamingCallCanBeMocked()
         {
-            //var mockClient = new Moq.Mock<Orcastrater.OrcastraterClient>();
-            //var forecast = new List<Node>(){
-            //        new Node{
-            //            IpAddress= "1.1.1.1",
-            //            Name="node1",
-            //            AllCPU= 300,
-            //            AllMemory= 2000,
-            //            FreeCPU=150,
-            //            FreeMemory=1000 },
-            //        new Node{
-            //            IpAddress= "2.2.2.2",
-            //            Name="node2",
-            //            AllCPU= 222,
-            //            AllMemory= 2222,
-            //            FreeCPU=1111,
-            //            FreeMemory=1111 }
-            //    };
-            //var jsonString = JsonSerializer.Serialize(forecast);
-            //var ret = new Orcastrate.GenericMessage { Content = jsonString };
+            // Arrange
+            var service = new OrcastrateService(NullLogger<OrcastrateService>.Instance);
+            var writer = new Mock<IServerStreamWriter<PodsResponse>>();
 
-            //var mockResponseStream = new Moq.Mock<IAsyncStreamReader<GenericMessage>>();
-            //mockResponseStream.Setup(sr=> sr.Current).Returns(ret);
-            //var fakeCall = TestCalls.AsyncServerStreamingCall<GenericMessage>(mockResponseStream.Object, Task.FromResult(new Metadata()), () => Status.DefaultSuccess, () => new Metadata(), () => { });
-            //mockClient.Setup(m => m.GetNodeCapacities(Moq.It.IsAny<Empty>(), null, null, CancellationToken.None)).Returns(fakeCall);
-            //Assert.AreSame(fakeCall, mockClient.Object.GetNodeCapacities(new Empty()));
+            var context = new Mock<ServerCallContext>();
+            context.Protected().Setup<string>("PeerCore").Returns("something");
+            
+            // Act
+            await service.Reconcile(new Mock<IAsyncStreamReader<RegisterRequest>>().Object, writer.Object, context.Object);
 
+            // Asser
+            writer.Verify(x => x.WriteAsync(It.IsAny<PodsResponse>()));
         }
     }
 }
