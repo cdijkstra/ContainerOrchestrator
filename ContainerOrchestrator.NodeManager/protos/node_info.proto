@@ -1,0 +1,19 @@
+syntax="proto3";
+package kiss;
+
+// The greeting service definition.
+service NodeInfo {
+    // Sends a greeting
+    rpc NodeJoin (JoinRequest) returns (JoinReply) {}
+  
+  }
+  
+  // The request message containing the user's name.
+  message JoinRequest {
+    optional string nodeIp = 1; 
+  }
+  
+  // The response message containing the greetings
+  message JoinReply {
+    optional bool isJoin = 1;
+  }
