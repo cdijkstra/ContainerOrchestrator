@@ -32,7 +32,7 @@ namespace ContainerOrchestrator.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<OrcastrateService>();
-                endpoints.MapGrpcService<ValidatorService>();
+                endpoints.MapGrpcService<ValidatorApiService>();
 
                 endpoints.MapGet("/", async context =>
                 {
