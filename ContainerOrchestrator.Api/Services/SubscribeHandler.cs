@@ -30,7 +30,7 @@ namespace ContainerOrchestrator.Api.Services
             }
         }
         
-         private async Task<Nullable<KeyValuePair<string, IServerStreamWriter<PodsResponse>>>> SendMessageToSubscriber(KeyValuePair<string, IServerStreamWriter<PodsResponse>> scheduler, IList<Pod> message)
+        private async Task<Nullable<KeyValuePair<string, IServerStreamWriter<PodsResponse>>>> SendMessageToSubscriber(KeyValuePair<string, IServerStreamWriter<PodsResponse>> scheduler, IList<Pod> message)
         {
             try
             {
@@ -49,31 +49,5 @@ namespace ContainerOrchestrator.Api.Services
                 return scheduler;
             }
         }
-         
-         // public async Task BroadcastMessageAsync(Deployment deploymentMessage) => await BroadcastMessages(deploymentMessage);
-         //
-         // private async Task BroadcastMessages(Deployment deploymentMessage)
-         // {
-         //     var item = await SendMessageToSubscriber(api, deploymentMessage);
-         //     if (item != null)
-         //     {
-         //         Remove(item?.Key);
-         //     }
-         // }
-         
-         // private async Task<Nullable<KeyValuePair<string, IServerStreamWriter<PodsResponse>>>> SendMessageToSubscriber(api, Deployment deploymentMessage)
-         // {
-         //     try
-         //     {
-         //         var deploymentResponse = new DeploymentResponse();
-         //         await api.Value.WriteAsync(deploymentResponse);
-         //         return null;
-         //     }
-         //     catch (Exception ex)
-         //     {
-         //         Console.WriteLine(ex);
-         //         return api;
-         //     }
-         // }
     }
 }
