@@ -58,7 +58,7 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
                     var pendingPods = response.ResponseStream.Current.Pods;
 
                     var ns = new NodeServices(serverAddress);
-                    var nodes = await ns.GetNodeStatusAsync();
+                    var nodes = await ns.GetNodeStatusAsync(ConnectionHandler.GetClient(serverAddress));
 
                     Console.WriteLine("Nodes in a list:");
                     foreach (var node in nodes)
