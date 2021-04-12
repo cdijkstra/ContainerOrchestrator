@@ -1,12 +1,10 @@
-﻿using ContainerOrchestrator.Base;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Orcastrate;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
+using Pod = Orcastrate.Pod;
 
 namespace ContainerOrchestrator.Api.Services
 {
@@ -28,10 +26,10 @@ namespace ContainerOrchestrator.Api.Services
                 if (item != null)
                 {
                     Remove(item?.Key);
-                };
+                }
             }
         }
-
+        
         private async Task<Nullable<KeyValuePair<string, IServerStreamWriter<PodsResponse>>>> SendMessageToSubscriber(KeyValuePair<string, IServerStreamWriter<PodsResponse>> scheduler, IList<Pod> message)
         {
             try

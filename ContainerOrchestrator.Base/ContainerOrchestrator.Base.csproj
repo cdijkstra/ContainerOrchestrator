@@ -14,8 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos/*.proto" OutputDir="Models/" />
+    <Protobuf Include="Protos/*.proto" OutputDir="Models/Protos" ProtoRoot="Protos/" />
   </ItemGroup>
-
 
 </Project>

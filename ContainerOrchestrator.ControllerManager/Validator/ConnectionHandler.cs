@@ -1,24 +1,27 @@
 ﻿using Grpc.Net.Client;
 using System.Threading.Tasks;
-using static Orcastrate.Orcastrater;
+using Validatorapi;
+using ValidatorClient = Validatorapi.ValidatorApi.ValidatorApiClient;
 
 namespace ContainerOrchestrator.Scheduler.ServiceHandlers
 {
     public static class ConnectionHandler
     {
-        private static readonly OrcastraterClient _orcastrater;
+        private static readonly ValidatorApi.ValidatorApiClient _validatorClient;
         private static GrpcChannel _channel;
 
         static ConnectionHandler()
         {
-            _orcastrater = null;
+            _validatorClient = null;
             _channel = null;
         }
         
         public static void CreateConnection(string serverAddress)
         {
             if (_channel == null)
+            {
                 _channel = GrpcChannel.ForAddress(serverAddress);
+            }
         }
 
         public static async Task CloseChannelAsync()
@@ -26,12 +29,14 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
             await _channel.ShutdownAsync();
         }
 
-        public static OrcastraterClient GetClient(string serverAddress)
+        public static ValidatorApi.ValidatorApiClient GetClient(string serverAddress)
         {
             if (_channel == null)
+            {
                 CreateConnection(serverAddress);
+            }
 
-            return _orcastrater ?? new OrcastraterClient(_channel);
+            return _validatorClient ?? new ValidatorApi.ValidatorApiClient(_channel);
         }
     }
 }

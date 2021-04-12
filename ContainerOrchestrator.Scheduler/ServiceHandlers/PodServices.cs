@@ -1,16 +1,11 @@
-﻿using static ContainerOrchestrator.Base.ExtensionMethods;
-using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
+﻿using Grpc.Core;
 using Orcastrate;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using static Orcastrate.Orcastrater;
 using ContainerOrchestrator.Base;
-using Google.Protobuf.Collections;
 
 namespace ContainerOrchestrator.Scheduler.ServiceHandlers
 {
