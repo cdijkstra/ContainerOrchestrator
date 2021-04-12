@@ -50,8 +50,8 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
         {
             try
             {
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(500));
-                var response = client.Reconcile(cancellationToken: cts.Token);
+                //var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+                var response = client.Reconcile(cancellationToken: CancellationToken.None);
 
                 while (await response.ResponseStream.MoveNext(cancellationToken: CancellationToken.None))
                 {
