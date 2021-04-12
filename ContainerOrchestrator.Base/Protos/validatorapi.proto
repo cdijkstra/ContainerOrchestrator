@@ -1,5 +1,4 @@
 syntax = "proto3";
-option csharp_namespace = "Validatorapi";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
@@ -8,12 +7,18 @@ package validatorapi;
 
 // The greeting service definition.
 service ValidatorApi {
+  rpc ValidateDeployment(Deployment) returns (DeploymentResponse);
   rpc GetAcceptableLimits(google.protobuf.Empty) returns (AcceptableLimits);
 }
 
 message GenericReply{
   int32 ResponseCode = 1;
   string ResponseMessage = 2;
+}
+
+message Limitation{
+  int32 CPU = 1;
+  int32 Memory = 2;
 }
 
 message Deployment{
@@ -28,7 +33,8 @@ message Deployment{
 
 message DeploymentResponse{
   bool Allowed = 1;
-  repeated Pod pods = 2;
+  Deployment deployment = 2;
+  string Reason = 3;
 }
 
 message Pod{
@@ -42,14 +48,10 @@ message Pod{
   google.protobuf.Timestamp LastModified = 8;
 }
 
-message Limitation{
-  int32 CPU = 1;
-  int32 Memory = 2;
-}
-
 message AcceptableLimits{
   Limitation minima = 1;
   Limitation maxima = 2;
+  int32 replicas = 3;
 }
 
 enum PodStatus {

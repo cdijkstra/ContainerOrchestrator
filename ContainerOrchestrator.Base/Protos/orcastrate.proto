@@ -33,6 +33,11 @@ message NodesResponse{
     repeated Node Nodes = 1;
 }
 
+message Limitation{
+    int32 CPU = 1;
+    int32 Memory = 2;
+}
+
 message Deployment{
     string Name = 1;
     int32 Replicas = 2;
@@ -41,11 +46,6 @@ message Deployment{
     Limitation Limit = 5;
     Limitation Request = 6;
     google.protobuf.Timestamp LastModified = 7;
-}
-
-message Limitation{
-    int32 CPU = 1;
-    int32 Memory = 2;
 }
 
 message Node{
