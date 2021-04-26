@@ -1,0 +1,43 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+package kubelet;
+
+// The greeting service definition.
+service Kubelet {
+  rpc RunPod(stream PodRequest) returns (stream Pod);
+}
+
+message Limitation{
+    int32 CPU = 1;
+    int32 Memory = 2;
+}
+
+enum PodStatus {
+    Pending=0;
+    Creating=1;
+    Running=2;
+    Failed=3;
+    Terminating=4;
+}
+
+message PodRequest{
+    string Name = 1;
+    string Image = 2;
+    repeated string Commands = 3;
+    Limitation Limit = 4;
+    Limitation Request = 5;
+}
+
+message Pod{
+    string Name = 1;
+    string Image = 2;
+    repeated string Commands = 3;
+    Limitation Limit = 4;
+    Limitation Request = 5;
+    string NodeName = 6;
+    PodStatus Status = 7;
+    google.protobuf.Timestamp LastModified = 8;
+}

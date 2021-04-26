@@ -15,6 +15,13 @@
 
   <ItemGroup>
     <Protobuf Include="Protos/*.proto" OutputDir="Models/" />
+    <Protobuf Update="Protos\kubelet.proto">
+      <GrpcServices>Both</GrpcServices>
+      <Access>Public</Access>
+      <ProtoCompile>True</ProtoCompile>
+      <CompileOutputs>True</CompileOutputs>
+      <Generator>MSBuild:Compile</Generator>
+    </Protobuf>
   </ItemGroup>
 
 
