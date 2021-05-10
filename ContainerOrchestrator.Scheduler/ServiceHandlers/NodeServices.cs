@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using static Orcastrate.Orcastrater;
 
 namespace ContainerOrchestrator.Scheduler.ServiceHandlers
 {
@@ -22,14 +23,13 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
             this.serverAddress = serverAddress;
         }
 
-        public async Task<IList<Node>> GetNodeStatusAsync()
+        public async Task<IList<Node>> GetNodeStatusAsync(OrcastraterClient client)
         {
-            var client = ConnectionHandler.GetClient(serverAddress);
 
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(500));
             try
             {
-                var reply = await client.GetNodeCapacitiesAsync(new Empty(), cancellationToken: cts.Token);
+                var reply = await client.GetNodeCapacitiesAsync(new Empty());
                 return reply.Nodes;
             }
             catch (RpcException ex) when (ex.StatusCode == StatusCode.Cancelled)

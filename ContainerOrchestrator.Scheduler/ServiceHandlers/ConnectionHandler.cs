@@ -10,13 +10,14 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
 {
     public static class ConnectionHandler
     {
-        private static OrcastraterClient orcastrater = null;
+        private static readonly OrcastraterClient orcastrater = null;
         private static GrpcChannel channel = null;
         
         public static void CreateConnection(string serverAddress)
         {
             if (channel == null)
                 channel = GrpcChannel.ForAddress(serverAddress);
+            
         }
 
         public static async Task CloseChannelAsync()

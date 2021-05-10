@@ -12,11 +12,11 @@ namespace ContainerOrchestrator.Api.Services
 {
     public class SubscribeHandler
     {
-        private static ConcurrentDictionary<string, IServerStreamWriter<PodsResponse>> schedulers = new ConcurrentDictionary<string, IServerStreamWriter<PodsResponse>>();
+        private static readonly ConcurrentDictionary<string, IServerStreamWriter<PodsResponse>> schedulers = new ConcurrentDictionary<string, IServerStreamWriter<PodsResponse>>();
 
         public void Join(string name, IServerStreamWriter<PodsResponse> response) => schedulers.TryAdd(name, response);
 
-        public void Remove(string name) => schedulers.TryRemove(name, out var s);
+        public void Remove(string name) => schedulers.TryRemove(name, out var _);
 
         public async Task BroadcastMessageAsync(IList<Pod> message) => await BroadcastMessages(message);
 

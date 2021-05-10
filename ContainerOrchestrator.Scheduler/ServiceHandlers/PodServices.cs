@@ -50,15 +50,15 @@ namespace ContainerOrchestrator.Scheduler.ServiceHandlers
         {
             try
             {
-                var cts = new CancellationTokenSource(TimeSpan.FromSeconds(500));
-                var response = client.Reconcile(cancellationToken: cts.Token);
+                //var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+                var response = client.Reconcile(cancellationToken: CancellationToken.None);
 
                 while (await response.ResponseStream.MoveNext(cancellationToken: CancellationToken.None))
                 {
                     var pendingPods = response.ResponseStream.Current.Pods;
 
                     var ns = new NodeServices(serverAddress);
-                    var nodes = await ns.GetNodeStatusAsync();
+                    var nodes = await ns.GetNodeStatusAsync(ConnectionHandler.GetClient(serverAddress));
 
                     Console.WriteLine("Nodes in a list:");
                     foreach (var node in nodes)
